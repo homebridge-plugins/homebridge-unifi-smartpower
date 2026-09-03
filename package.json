@@ -1,7 +1,7 @@
 {
   "displayName": "UniFi SmartPower",
   "name": "@homebridge-plugins/homebridge-unifi-smartpower",
-  "version": "2.3.1",
+  "version": "2.4.0",
   "description": "UniFi SmartPower plugin for Homebridge.",
   "license": "Apache-2.0",
   "repository": {

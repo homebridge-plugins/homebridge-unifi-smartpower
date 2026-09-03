@@ -1,3 +1,12 @@
+# [2.4.0](https://github.com/homebridge-plugins/homebridge-unifi-smartpower/compare/v2.3.1...v2.4.0) (2026-09-03)
+
+
+### Features
+
+* support Node.js 24 and 26 ([#52](https://github.com/homebridge-plugins/homebridge-unifi-smartpower/issues/52)) ([fca16fe](https://github.com/homebridge-plugins/homebridge-unifi-smartpower/commit/fca16fe9d5ac757f7f7f08da7951660abf3a9271)), closes [#51](https://github.com/homebridge-plugins/homebridge-unifi-smartpower/issues/51)
+
+
+
 # Changelog
 
 All notable changes to this project will be documented in this file. This project uses [Semantic Versioning](https://semver.org/)
