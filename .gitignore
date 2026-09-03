@@ -122,3 +122,6 @@ dist
 /config/
 
 .idea
+
+# Helper scripts the homebridge release workflow downloads at run time
+.github/scripts/

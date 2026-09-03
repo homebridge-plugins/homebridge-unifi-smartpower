@@ -83,25 +83,14 @@ You can use the `npm version` command to help you with this:
 
 ```bash
 # major update / breaking changes
-npm version major --no-git-tag-version
+npm version major
 
 # minor update / new features
-npm version minor --no-git-tag-version
+npm version minor
 
 # patch / bugfixes
-npm version patch --no-git-tag-version
+npm version patch
 ```
-
-#### Releasing
-
-The `latest` branch only accepts changes through a pull request, so a release is two steps:
-
-1. Open a PR that bumps the version in `package.json` / `package-lock.json` and adds the entry to
-   `CHANGELOG.md`, then merge it.
-2. Publish a GitHub release whose tag is `v<version>` (for example `v2.4.0`) pointing at that merge
-   commit. The [Release workflow](./.github/workflows/release.yml) checks the tag against
-   `package.json`, then builds and publishes that commit to npm. Marking the GitHub release as a
-   pre-release publishes it under the `beta` dist-tag instead of `latest`.
 
 #### Publishing Beta Versions
 
