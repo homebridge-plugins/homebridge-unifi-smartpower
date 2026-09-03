@@ -8,6 +8,14 @@
 [UniFi SmartPower](https://store.ui.com/collections/unifi-network-smartpower) plugin
 for [Homebridge](https://github.com/homebridge/homebridge).
 
+## Requirements
+
+- **Node.js:** `22.x`, `24.x`, or `26.x` (Homebridge does not support odd-numbered Node releases)
+- **Homebridge:** `1.8.5+` or `2.x`
+
+If Homebridge reports that this plugin "requires Node.js version of ^20 || ^22", you are running
+plugin `2.3.1` or older. Install `2.4.0+`.
+
 ## Models Supported
 
 - [SmartPower PDU Pro (USP-PDU-Pro)](https://store.ui.com/collections/unifi-network-smartpower/products/usp-pdu-pro)

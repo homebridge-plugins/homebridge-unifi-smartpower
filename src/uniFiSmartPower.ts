@@ -395,7 +395,7 @@ export class UniFiSmartPower {
       poeCaps === null ||
       this.poeSupportsMode(poeCaps, UniFiSwitchPortPoeCaps['8023AF']) ||
       this.poeSupportsMode(poeCaps, UniFiSwitchPortPoeCaps['8023AT']) ||
-      this.poeSupportsMode(poeCaps, UniFiSwitchPortPoeCaps['8028023BT3AF'])
+      this.poeSupportsMode(poeCaps, UniFiSwitchPortPoeCaps['8023BT'])
     ) {
       return 'auto';
     }
