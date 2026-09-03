@@ -1,71 +1,68 @@
-name: Unified Release
+name: Release
+
+# Publishes the plugin to npm when a GitHub release is published.
+#
+# The `latest` branch only accepts changes through a pull request, so the
+# version bump and CHANGELOG entry land in a normal PR. Publishing a GitHub
+# release whose tag is `v<version>` (matching package.json) then builds and
+# publishes that exact commit to npm. Nothing here pushes back to the repo.
 
 on:
-  push:
-    branches:
-      #- "alpha-*"
-      #- "beta-*"
-      - latest
-  workflow_dispatch:
+  release:
+    types: [published]
+
+permissions:
+  id-token: write
+  contents: read
 
 jobs:
-  # 1️⃣ Determine release type, ESM status, and branch name
-  determine-release-type:
-    uses: homebridge/.github/.github/workflows/determine-release-type.yml@latest
-    with:
-      ref_name: ${{ github.ref_name }}
+  publish:
+    if: ${{ github.repository == 'homebridge-plugins/homebridge-unifi-smartpower' }}
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v7
 
-  # 2️⃣ Update version and changelog using the scripts
-  update-version:
-    needs: determine-release-type
-    uses: homebridge/.github/.github/workflows/update-version.yml@latest
-    with:
-      release_type: ${{ needs.determine-release-type.outputs.release_type }}
-      is_esm: ${{ needs.determine-release-type.outputs.is_esm == 'true' }}
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          cache: npm
 
-  # 3️⃣ Publish to NPM and create GitHub release
-  publish-release:
-    needs: [determine-release-type, update-version]
-    permissions:
-      id-token: write
-      contents: write
-    uses: homebridge/.github/.github/workflows/publish-release.yml@latest
-    with:
-      release_type: ${{ needs.determine-release-type.outputs.release_type }}
-      version: ${{ needs.update-version.outputs.version }}
-      is_esm: ${{ needs.determine-release-type.outputs.is_esm == 'true' }}
-    secrets:
-      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Upgrade npm for OIDC trusted publishing
+        run: npm install -g npm@latest
 
-  # 4️⃣ Promote branch if this is a prerelease (alpha/beta)
-  promote-branch:
-    needs: [determine-release-type, publish-release]
-    if: ${{ needs.determine-release-type.outputs.release_type != 'latest' && needs.determine-release-type.outputs.release_type != 'skip' }}
-    uses: homebridge/.github/.github/workflows/promote-branch.yml@latest
-    with:
-      branch_name: ${{ needs.determine-release-type.outputs.branch_name }}
-      release_type: ${{ needs.determine-release-type.outputs.release_type }}
-      is_esm: ${{ needs.determine-release-type.outputs.is_esm == 'true' }}
+      - name: Check the release tag matches package.json
+        id: version
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          PKG_VERSION="$(node -p "require('./package.json').version")"
+          if [ "$RELEASE_TAG" != "v$PKG_VERSION" ]; then
+            echo "::error::Release tag '$RELEASE_TAG' does not match package.json version '$PKG_VERSION'"
+            exit 1
+          fi
+          echo "version=$PKG_VERSION" >> "$GITHUB_OUTPUT"
 
-  # 5️⃣ Notify if any previous job fails
-  workflow-failure:
-    if: ${{ failure() }}
-    needs: [determine-release-type, update-version, publish-release, promote-branch]
-    uses: homebridge/.github/.github/workflows/report-failure.yml@latest
-    with:
-      workflow_name: ${{ github.workflow }}
-      job_name: ${{ github.job }}
-      run_url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      - name: Install dependencies
+        run: npm ci
 
-  # 6️⃣ Post to Discord
+      # prepublishOnly runs lint and build.
+      - name: Publish to npm
+        run: npm publish --access public --provenance --tag "$NPM_TAG"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN || '' }}
+          NPM_TAG: ${{ github.event.release.prerelease && 'beta' || 'latest' }}
+
   github-releases-to-discord:
     name: Discord Webhooks
-    needs: [determine-release-type, update-version, publish-release]
+    needs: publish
     uses: homebridge/.github/.github/workflows/discord-webhooks.yml@latest
     with:
       title: "Unifi SmartPower Release"
       description: |
-        Version `v${{ needs.update-version.outputs.version }}`
-      url: "https://github.com/homebridge-plugins/homebridge-unifi-smartpower/releases/tag/v${{ needs.update-version.outputs.version }}"
+        Version `v${{ needs.publish.outputs.version }}`
+      url: ${{ github.event.release.html_url }}
     secrets:
       DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL_LATEST }}
