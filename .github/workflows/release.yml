@@ -7,6 +7,22 @@ on:
       #- "beta-*"
       - latest
   workflow_dispatch:
+    inputs:
+      version_bump:
+        description: Bump level when no explicit version is given. auto uses the merged PR's major/minor/patch label, else patch.
+        required: false
+        type: choice
+        options:
+          - auto
+          - patch
+          - minor
+          - major
+        default: auto
+      version_override:
+        description: Exact version to release (for example 2.4.0). Leave empty to auto bump.
+        required: false
+        type: string
+        default: ""
 
 jobs:
   # 1️⃣ Determine release type, ESM status, and branch name
@@ -22,6 +38,8 @@ jobs:
     with:
       release_type: ${{ needs.determine-release-type.outputs.release_type }}
       is_esm: ${{ needs.determine-release-type.outputs.is_esm == 'true' }}
+      version_bump: ${{ inputs.version_bump != 'auto' && inputs.version_bump || '' }}
+      version_override: ${{ inputs.version_override || '' }}
 
   # 3️⃣ Publish to NPM and create GitHub release
   publish-release:
@@ -34,6 +52,8 @@ jobs:
       release_type: ${{ needs.determine-release-type.outputs.release_type }}
       version: ${{ needs.update-version.outputs.version }}
       is_esm: ${{ needs.determine-release-type.outputs.is_esm == 'true' }}
+      version_bump: ${{ inputs.version_bump != 'auto' && inputs.version_bump || '' }}
+      version_override: ${{ inputs.version_override || '' }}
     secrets:
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 

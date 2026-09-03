@@ -1,12 +1,12 @@
 {
   "displayName": "UniFi SmartPower",
   "name": "@homebridge-plugins/homebridge-unifi-smartpower",
-  "version": "2.4.0",
+  "version": "2.3.1",
   "description": "UniFi SmartPower plugin for Homebridge.",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "git://github.com/homebridge-plugins/homebridge-unifi-smartpower.git"
+    "url": "https://github.com/homebridge-plugins/homebridge-unifi-smartpower.git"
   },
   "bugs": {
     "url": "https://github.com/homebridge-plugins/homebridge-unifi-smartpower/issues"
